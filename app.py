@@ -1,103 +1,141 @@
 import streamlit as st
 
-# 1. 網頁基本設定（設定預設收起側邊欄，讓手機畫面最大化）
+# 1. 網頁基本設定（預設收起側邊欄）
 st.set_page_config(page_title="2026 花蓮選舉：AI 政策照妖鏡", layout="wide", initial_sidebar_state="collapsed")
 
-# 針對手機版進行 CSS 視覺微調，確保字體在手機上依然霸氣大字
+# 2. 核心黑科技：強制注入「2026 賽博朋克暗黑戰情室」CSS 樣式表
+# 徹底幹掉 Streamlit 預設的白牆排版，換上硬核科技感外殼
 st.markdown("""
     <style>
-    div[data-testid="stMetricValue"] { font-size: 1.8rem !important; }
-    .candidate-box { padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+    /* 全域背景與文字科技感設定 */
+    .stApp { background-color: #0B0F19 !important; color: #E5E7EB !important; }
+    h1, h2, h3, h4, p, span { font-family: 'Courier New', monospace, sans-serif !important; }
+    
+    /* 戰區科技感卡片 */
+    .zone-box {
+        background: linear-gradient(135deg, #111827 0%, #1F2937 100%);
+        border-left: 5px solid #3B82F6;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 候選人殘酷對決卡片 */
+    .candidate-card {
+        padding: 18px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    /* 駭客終端機風格的 AI 區塊 */
+    .terminal-box {
+        background-color: #05070B !important;
+        border: 1px solid #10B981 !important;
+        padding: 20px;
+        border-radius: 6px;
+        font-family: 'Courier New', monospace !important;
+        color: #34D399 !important;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# 科技感大標題
-st.markdown("<h1 style='text-align: center; color: #1E3A8A; font-size: 2rem;'>🤖 2026 花蓮縣長選舉：AI 政策照妖鏡</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 1rem; color: #4B5563;'><b>【公民智庫 X AI 2026 降維打擊】</b> 手指滑動切換戰區，啟動 AI 語意法官政策透視</p>", unsafe_allow_html=True)
-st.markdown("---")
+# 頂部大標題：賽博朋克霓虹風格
+st.markdown("<h1 style='text-align: center; color: #60A5FA; font-weight: bold;'>🤖 2026 HUALIEN AI TRACKER</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #10B981; font-size: 1.1rem; letter-spacing: 2px;'><b>【 花蓮縣長選舉：AI 政策照妖鏡 】</b></p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #9CA3AF; font-size: 0.9rem;'>公民智庫 X AI 降維打擊 ── 遠端全面監控，拒絕空頭支票</p>", unsafe_allow_html=True)
+st.markdown("<hr style='border-color: rgba(255,255,255,0.1);'>", unsafe_allow_html=True)
 
-st.markdown("### 🗺️ 第一步：請用手指切換「花蓮三大戰區」")
+# 3. 處理戰區切換（Session State 防呆鎖定）
+if 'current_town' not in st.session_state:
+    st.session_state.current_town = "吉安鄉"
 
-# 運用 Streamlit 原生的 tabs 功能，在手機上會自動變成極度流暢、免用顯微鏡的「左右滑動選單」
-tab_north, tab_center, tab_south = st.tabs(["🟦 北花蓮核心 (吉安/花市/新城)", "🟩 中花蓮縱谷 (鳳林/壽豐/光復)", "🟧 南花蓮糧倉 (玉里/瑞穗/富里)"])
+st.markdown("### 🛰️ STEP 1: 點擊啟動「戰區數據透視探針」")
 
-# 預設議題變數
-town = ""
-issue_text = ""
-response_A = ""
-response_B = ""
-response_C = ""
-ai_judge = ""
+# 行動端最友善的科技感「巨型觸控卡片」
+col_z1, col_z2, col_z3 = st.columns(3)
 
-# --- 北花蓮戰區內容 ---
-with tab_north:
-    # 手機版直接用按鈕點選，字體大、100%防呆
-    st.markdown("#### 📍 請選擇北華蓮行政區：")
-    col_n1, col_n2 = st.columns(2)
-    with col_n1:
-        btn_ji = st.button("🔥 吉安鄉 (本週主打)", use_container_width=True)
-    with col_n2:
-        btn_hl = st.button("🔵 花蓮市", use_container_width=True)
-        
-    if btn_hl:
-        town = "花蓮市"
-    else:
-        # 預設或點擊吉安鄉時，載入大老提供的精準攻防資料
-        town = "吉安鄉"
-        issue_text = "「吉安鄉作為花蓮唯一人口正成長的地區，老年人前往慈濟醫院或門諾醫院的就醫接駁車班次嚴重不足。請問各候選人，是否承諾當選後三個月內，結合中央補助，針對各村高齡長者增開『每日定時就醫專車』？」"
-        response_A = "❌ 游淑貞 (現任)<br><br><b>【AI 判定：打高空願景】</b><br><br>官方回應：「我們會從現在的公共運輸持續滾動檢討。」"
-        response_B = "⚠️ 張峻<br><br><b>【AI 判定：缺乏具體預算】</b><br><br>官方回應：「將建立公共運輸網，打造便利生活。」"
-        response_C = "⚠️ 魏嘉賢<br><br><b>【AI 判定：缺乏執行時程】</b><br><br>官方回應：「將持續滾動檢討公共運輸網。」"
-        ai_judge = "1. <b>現任者游淑貞陣營</b>：採用了極其典型的『程序性拖延修辭』（滾動檢討）。實質上避開了對特定預算科目的承諾。<br>2. <b>張峻與魏嘉賢陣營</b>：兩者提出的均屬於宏觀政策願景（Vision），而非具體可執行之計畫（Action Plan）。在缺乏經費來源與期程的情況下，此類政見在 AI 語意模型中的『可信度指標』僅評定為 <b>18%</b>。<br><br><b>⚖️ 綜合判決：</b> 本案三方幕僚均未通過『直球對決測試』，本看板將持續亮起黃紅燈示警。"
+with col_z1:
+    st.markdown("<div class='zone-box' style='border-left-color: #3B82F6;'><b>🟦 北花蓮戰區</b><br><span style='color: #9CA3AF; font-size: 0.8rem;'>吉安 / 花市 / 新城 / 秀林</span></div>", unsafe_allow_html=True)
+    if st.button("📡 鎖定北花蓮 (吉安焦點)", use_container_width=True):
+        st.session_state.current_town = "吉安鄉"
 
-# --- 中花蓮戰區內容 ---
-with tab_center:
-    st.markdown("#### 📍 請選擇中花蓮行政區：")
-    col_m1, col_m2 = st.columns(2)
-    with col_m1:
-        if st.button("🟡 鳳林鎮", use_container_width=True): town = "鳳林鎮"
-    with col_m2:
-        if st.button("🟡 壽豐鄉", use_container_width=True): town = "壽豐鄉"
+with col_z2:
+    st.markdown("<div class='zone-box' style='border-left-color: #10B981;'><b>🟩 中花蓮縱谷</b><br><span style='color: #9CA3AF; font-size: 0.8rem;'>鳳林 / 壽豐 / 光復 / 豐濱</span></div>", unsafe_allow_html=True)
+    if st.button("📡 鎖定中花蓮縱谷", use_container_width=True):
+        st.session_state.current_town = "中花蓮縱谷"
 
-# --- 南花蓮戰區內容 ---
-with tab_south:
-    st.markdown("#### 📍 請選擇南花蓮行政區：")
-    col_s1, col_s2 = st.columns(2)
-    with col_s1:
-        if st.button("🔴 玉里鎮", use_container_width=True): town = "玉里鎮"
-    with col_s2:
-        if st.button("🟠 瑞穗鄉", use_container_width=True): town = "瑞穗鄉"
+with col_z3:
+    st.markdown("<div class='zone-box' style='border-left-color: #F97316;'><b>🟧 南花蓮糧倉</b><br><span style='color: #9CA3AF; font-size: 0.8rem;'>玉里 / 瑞穗 / 富里 / 卓溪</span></div>", unsafe_allow_html=True)
+    if st.button("📡 鎖定南花蓮糧倉", use_container_width=True):
+        st.session_state.current_town = "南花蓮糧倉"
 
-# 預設防空值處理
-if not town:
-    town = "吉安鄉"
+st.markdown(f"### 🎯 當前透視坐標：<span style='color: #60A5FA; font-size: 1.6rem;'>【 {st.session_state.current_town} 】</span>", unsafe_allow_html=True)
+st.markdown("<hr style='border-color: rgba(255,255,255,0.1);'>", unsafe_allow_html=True)
 
-st.markdown(f"### 📍 當前透視戰區：<span style='color: #EF4444;'>【{town} 焦點議題】</span>", unsafe_allow_html=True)
-st.markdown("---")
-
-# 5. 政策詰問與殘酷對決看板
-if town == "吉安鄉" and issue_text:
+# 4. 數據渲染（吉安焦點議題）
+if st.session_state.current_town == "吉安鄉":
     st.markdown("### 🚨 在地青年連線·直球詰問：")
-    st.info(issue_text)
     
-    # 手機版友善排版：在電腦/平板上會三欄並排，在手機上會自動變成「一格一格往下堆疊」，字體絕對不會縮小！
-    st.markdown("### 🏛️ 各候選人直球對決看板")
+    # 詰問面板改用暗黑高亮框
+    st.markdown(f"""
+        <div style='background-color: #111827; border: 1px solid #3B82F6; padding: 20px; border-radius: 8px; color: #F3F4F6; margin-bottom: 25px;'>
+        <b>【高齡就醫交通痛點】</b><br><br>
+        「吉安鄉作為花蓮唯一人口正成長的地區，老年人前往慈濟醫院或門諾醫院的就醫接駁車班次嚴重不足。請問各候選人，是否承諾當選後三個月內，結合中央補助，針對各村高齡長者增開『每日定時就醫專車』？」
+        </div>
+    """, unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown(f"<div class='candidate-box' style='background-color: #FEE2E2; border: 1px solid #EF4444; color: #991B1B;'>{response_A}</div>", unsafe_allow_html=True)
-    with col2:
-        st.markdown(f"<div class='candidate-box' style='background-color: #FEF3C7; border: 1px solid #F59E0B; color: #92400E;'>{response_B}</div>", unsafe_allow_html=True)
-    with col3:
-        st.markdown(f"<div class='candidate-box' style='background-color: #FEF3C7; border: 1px solid #F59E0B; color: #92400E;'>{response_C}</div>", unsafe_allow_html=True)
+    st.markdown("### 🏛️ 各陣營官方回應對照（排版處刑）")
+    
+    # 電腦平板並排、手機自動垂直堆疊，字體超大，且帶有精美霓虹警示框
+    col_c1, col_c2, col_c3 = st.columns(3)
+    
+    with col_c1:
+        st.markdown("""
+            <div class='candidate-card' style='background-color: #2D1A1A; border-top: 4px solid #EF4444;'>
+                <h4 style='color: #F87171; margin-top:0;'>❌ 游淑貞 (現任)</h4>
+                <p style='color: #FCA5A5; font-size: 0.85rem;'><b>[ AI 語意判定：打高空願景 ]</b></p>
+                <p style='color: #E5E7EB; line-height: 1.6;'>官方回應：「我們會從現在的公共運輸持續滾動檢討。」</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+    with col_c2:
+        st.markdown("""
+            <div class='candidate-card' style='background-color: #2D251A; border-top: 4px solid #F59E0B;'>
+                <h4 style='color: #FBBF24; margin-top:0;'>⚠️ 張峻</h4>
+                <p style='color: #FCD34D; font-size: 0.85rem;'><b>[ AI 語意判定：缺乏具體預算 ]</b></p>
+                <p style='color: #E5E7EB; line-height: 1.6;'>官方回應：「將建立公共運輸網，打造便利生活。」</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+    with col_c3:
+        st.markdown("""
+            <div class='candidate-card' style='background-color: #2D251A; border-top: 4px solid #F59E0B;'>
+                <h4 style='color: #FBBF24; margin-top:0;'>⚠️ 魏嘉賢</h4>
+                <p style='color: #FCD34D; font-size: 0.85rem;'><b>[ AI 語意判定：缺乏執行時程 ]</b></p>
+                <p style='color: #E5E7EB; line-height: 1.6;'>官方回應：「將持續滾動檢討公共運輸網。」</p>
+            </div>
+        """, unsafe_allow_html=True)
         
     st.markdown("---")
     
-    # 🤖 科技感核心：AI 覆核法官區塊
-    st.markdown("### 🤖 2026 Google Gemini AI 政策覆核法官意見")
-    with st.expander("👁️ 點擊解鎖 AI 針對候選人「法律與財政紀律」的深度審查報告", expanded=True):
-        st.markdown(f"<div style='background-color: #F3F4F6; padding: 15px; border-radius: 8px; color: #1F2937;'>{ai_judge}</div>", unsafe_allow_html=True)
+    # 🤖 科技感最高峰：駭客終端機風格的 AI 覆核法官
+    st.markdown("### 🤖 GOOGLE GEMINI AI 政策覆核核心")
+    
+    # 用代碼終端機外殼包覆，科技感直接拉滿
+    with st.container():
+        st.markdown("""
+            <div class='terminal-box'>
+                <span style='color: #10B981;'>&gt; [SYSTEM]: 啟動 Gemini-2.5-Pro 語意解構引擎...</span><br>
+                <span style='color: #10B981;'>&gt; [ANALYSIS]: 開始針對候選人發言進行財政與行政法審查：</span><br><br>
+                1. <b>現任者游淑貞陣營</b>：採用程序性拖延修辭（滾動檢討）。實質上避開了對特定預算科目的承諾。<br>
+                2. <b>張峻與魏嘉賢陣營</b>：兩者提出之回覆均屬於宏觀政策願景（Vision），而非具體計畫（Action Plan）。在缺乏經費自籌方案與預計完工期程下，此政見在 AI 語意模型中的『可信度指標』僅評定為 <b>18%</b>。<br><br>
+                <span style='color: #F87171;'>&gt; [VERDICT]: 綜合判決：三方幕僚均未通過直球對決測試。系統鎖定黃紅燈警示。</span>
+            </div>
+        """, unsafe_allow_html=True)
 
 else:
-    st.markdown(f"### 📭 暫無【{town}】的青年提案")
-    st.write(f"這代表該區的傳統派系樁腳勢力依舊穩固，地方青年正在實體討論會中秘密集結。歡迎在地鄉親私訊管理員提供痛點，敬請期待下週【{town}週】火網全開！")
+    st.markdown(f"<div class='terminal-box' style='color: #9CA3AF !important; border-color: #4B5563 !important;'>&gt; [STATUS]: 暫無【{st.session_state.current_town}】之青年提案。傳統派系樁腳結構穩固，地方青年軍正秘密集結中。</div>", unsafe_allow_html=True)
