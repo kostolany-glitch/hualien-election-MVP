@@ -1,52 +1,60 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import pandas as pd
+import plotly.express as px
 
 # 1. 網頁基本設定
 st.set_page_config(page_title="2026 花蓮選舉：AI 政策照妖鏡", layout="wide", initial_sidebar_state="collapsed")
 
 # 科技感大標題
-st.markdown("<h1 style='text-align: center; color: #1E3A8A; font-family: sans-serif;'>🤖 2026 花蓮縣長選舉：AI 政策照妖鏡</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 1.1rem; color: #4B5563;'><b>【公民智庫 X AI 2026 降維打擊】</b> 點擊下方圖形化地圖，啟動 AI 語意法官進行政策透視</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>🤖 2026 花蓮縣長選舉：AI 政策照妖鏡</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 1.1rem; color: #4B5563;'><b>【公民智庫 X AI 2026 降維打擊】</b> 點擊下方圖形化地圖區塊，啟動 AI 語意法官進行政策透視</p>", unsafe_allow_html=True)
 st.markdown("---")
 
-st.markdown("### 🗺️ 第一步：請用手指觸控點擊下方「花蓮科技互動地圖」")
+st.markdown("### 🗺️ 第一步：請用手指觸控點擊選擇「花蓮形狀互動地圖」")
 
-# 2. 核心黑科技：嵌入原生 HTML/CSS/SVG 互動式地圖（專為平板觸控優化，點擊即送出 Streamlit 訊號）
-# 這裡用簡化的花蓮狹長型戰區幾何圖形，解決傳統地圖在手機上過小的致命傷
-svg_map_html = """
-<div style="display: flex; justify-content: center; align-items: center; background: #111827; padding: 20px; border-radius: 12px; box-shadow: int 0 0 20px rgba(0,0,0,0.5);">
-    <svg width="280" height="420" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" style="font-family:sans-serif;">
-        <g id="north" onclick="window.parent.postMessage({type: 'streamlit:setComponentValue', value: '吉安鄉'}, '*')" style="cursor: pointer;">
-            <path d="M 30 20 L 170 20 L 150 90 L 50 90 Z" fill="#1E3A8A" stroke="#3B82F6" stroke-width="2" style="transition: 0.3s;" onmouseover="this.setAttribute('fill', '#2563EB')" onmouseout="this.setAttribute('fill', '#1E3A8A')"/>
-            <text x="100" y="55" fill="#FFFFFF" font-size="12" font-weight="bold" text-anchor="middle">🔥 北花蓮核心 (吉安/花市/新城)</text>
-        </g>
-        
-        <g id="center" onclick="window.parent.postMessage({type: 'streamlit:setComponentValue', value: '鳳林鎮'}, '*')" style="cursor: pointer;">
-            <path d="M 50 95 L 150 95 L 130 180 L 70 180 Z" fill="#065F46" stroke="#10B981" stroke-width="2" style="transition: 0.3s;" onmouseover="this.setAttribute('fill', '#059669')" onmouseout="this.setAttribute('fill', '#065F46')"/>
-            <text x="100" y="140" fill="#FFFFFF" font-size="12" font-weight="bold" text-anchor="middle">⚡ 中花蓮縱谷 (鳳林/壽豐/光復)</text>
-        </g>
-        
-        <g id="south" onclick="window.parent.postMessage({type: 'streamlit:setComponentValue', value: '玉里鎮'}, '*')" style="cursor: pointer;">
-            <path d="M 70 185 L 130 185 L 110 280 L 90 280 Z" fill="#9A3412" stroke="#F97316" stroke-width="2" style="transition: 0.3s;" onmouseover="this.setAttribute('fill', '#EA580C')" onmouseout="this.setAttribute('fill', '#9A3412')"/>
-            <text x="100" y="235" fill="#FFFFFF" font-size="12" font-weight="bold" text-anchor="middle">⛰️ 南花蓮糧倉 (玉里/瑞穗/富里)</text>
-        </g>
-    </svg>
-</div>
-<p style="text-align: center; color: #9CA3AF; font-size: 0.8rem; margin-top: 5px;">💡 提示：在上方黑客風格地圖上，直接用手指戳你想觀看的戰區圖形即可切換。</p>
-"""
+# 用 Dataframe 模擬花蓮狹長的地形結構（由北到南排列）
+hualien_map_data = pd.DataFrame({
+    "戰區": ["北花蓮核心戰區", "北花蓮核心戰區", "北花蓮核心戰區", "北花蓮核心戰區", 
+             "中花蓮縱谷戰區", "中花蓮縱谷戰區", "中花蓮縱谷戰區", "中花蓮縱谷戰區", 
+             "南花蓮糧倉戰區", "南花蓮糧倉戰區", "南花蓮糧倉戰區", "南花蓮糧倉戰區", "南花蓮糧倉戰區"],
+    "行政區": ["花蓮市 (Capital)", "吉安鄉 (Focus)", "新城鄉", "秀林鄉", 
+              "壽豐鄉", "鳳林鎮", "光復鄉", "豐濱鄉", 
+              "瑞穗鄉", "萬榮鄉", "玉里鎮 (South Main)", "卓溪鄉", "富里鄉"],
+    "權重 (代表地理狹長視覺)": [10, 10, 8, 8, 8, 8, 8, 8, 8, 8, 10, 8, 8]
+})
 
-# 渲染炫砲的 SVG 地圖，並監聽點擊訊號
-clicked_town = components.html(svg_map_html, height=470)
+# 運用 Plotly 畫出一張「賽博朋克科技感」的幾何互動地圖（完全適應手機平板，100%不翻車）
+fig = px.treemap(
+    hualien_map_data, 
+    path=['戰區', '行政區'], 
+    values='權重 (代表地理狹長視覺)',
+    color='戰區',
+    color_discrete_map={'北花蓮核心戰區':'#1E3A8A', '中花蓮縱谷戰區':'#065F46', '南花蓮糧倉戰區':'#9A3412'}
+)
 
-# 接收地圖點擊訊號，若沒點擊則預設為吉安鄉
-town = "吉安鄉"
-if clicked_town:
-    town = clicked_town
+# 優化圖表視覺，幹掉多餘的邊框，讓它完美嵌入網頁
+fig.update_layout(margin=dict(t=0, l=0, r=0, b=0), height=350)
 
-st.markdown(f"### 📍 當前透視戰區：<span style='color: #EF4444; font-size: 1.8rem;'>【{town} 焦點議題】</span>", unsafe_allow_html=True)
+# 在網頁上渲染這張「真·互動圖形地圖」，並開啟點擊選取功能
+selected_points = st.plotly_chart(fig, use_container_width=True, on_select="rerun")
+
+# 3. 處理點擊地圖後的連動邏輯
+town = "吉安鄉" # 預設值
+
+# 如果選民用手指戳了地圖上的任何一個區塊，立刻撈出名字
+if selected_points and "points" in selected_points and len(selected_points["points"]) > 0:
+    try:
+        # 抓取選民點擊的行政區名稱
+        town_raw = selected_points["points"][0]["label"]
+        # 過濾掉後方的英文備註
+        town = town_raw.split(" ")[0]
+    except:
+        town = "吉安鄉"
+
+st.markdown(f"### 📍 當前透視行政區：<span style='color: #EF4444; font-size: 1.8rem;'>【{town} 焦點議題】</span>", unsafe_allow_html=True)
 st.markdown("---")
 
-# 3. 政策詰問本體 (吉安鄉示範)
+# 4. 政策詰問本體（精準對決吉安鄉）
 if town == "吉安鄉":
     st.markdown("### 🚨 在地青年連線·直球詰問：")
     st.info("「吉安鄉作為花蓮唯一人口正成長的地區，老年人前往慈濟醫院或門諾醫院的就醫接駁車班次嚴重不足。請問各候選人，是否承諾當選後三個月內，結合中央補助，針對各村高齡長者增開『每日定時就醫專車』？」")
@@ -58,7 +66,7 @@ if town == "吉安鄉":
         st.error("❌ 游淑貞 (現任)\n\n**【AI 判定：打高空願景】**\n\n官方回應：「我們會從現在的公共運輸持續滾動檢討。」")
     
     with col2:
-        st.warning("⚠️ 張峻\n\n**【AI 判定：缺乏具體預算】**\n\n官方回應：「將建立公共運輸网，打造便利生活。」")
+        st.warning("⚠️ 張峻\n\n**【AI 判定：缺乏具體預算】**\n\n官方回應：「將建立公共運輸網，打造便利生活。」")
         
     with col3:
         st.warning("⚠️ 魏嘉賢\n\n**【AI 判定：缺乏執行時程】**\n\n官方回應：「將持續滾動檢討公共運輸網。」")
@@ -68,7 +76,7 @@ if town == "吉安鄉":
     # 🤖 科技感核心：AI 覆核法官區塊
     st.markdown("### 🤖 2026 Google Gemini AI 政策覆核法官意見")
     
-    with st.expander("👁️ 點擊解鎖 AI 針對候選人「法律與財政紀律」的深度審查報告", expanded=False):
+    with st.expander("👁️ 點擊解鎖 AI 針對候選人「法律與財政紀律」的深度審查報告", expanded=True):
         st.write("""
         本區塊由 **Gemini-2.5-Pro** 模型依據《公職人員選舉競選言論管理辦法》與財政法原理，對上述發言進行結構化語意審查：
         
@@ -79,4 +87,4 @@ if town == "吉安鄉":
         """)
 
 else:
-    st.write(f"暫無【{town}】的青年提案。這代表該區的傳統派系樁腳勢力依舊穩固，地方青年正在實體討論會中秘密集結，敬請期待下週火網全開！")
+    st.write(f"暫無【{town}】的青年提案。這代表該區的傳統派系樁腳勢力依舊穩固，地方青年正在實體討論會中秘密集結，敬請期待下週【{town}週】火網全開！")
