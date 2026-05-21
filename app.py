@@ -4,8 +4,7 @@ import streamlit.components.v1 as components
 # 1. 網頁基本設定
 st.set_page_config(page_title="2026 花蓮選舉：AI 政策審判官", layout="wide", initial_sidebar_state="collapsed")
 
-# 2. 定義文青風 HTML 卡片模板 (將 Claude 的精緻視覺封裝起來)
-# 這裡用 Python 字串格式化，未來只要改這裡的變數，地圖與卡片就會自動更新！
+# 2. 定義文青風 HTML 卡片模板 (使用絕對安全的變數替換標記 __AI_REPORT__)
 html_template = """
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -121,8 +120,8 @@ html_template = """
     <div id="verdictLog"></div>
     <div class="ai-report">
       <div class="ai-report-header">🤖 GEMINI AI 政策覆核報告</div>
-      <p>{ai_report_1}</p>
-      <p>{ai_report_2}</p>
+      <p>__AI_REPORT_1__</p>
+      <p>__AI_REPORT_2__</p>
       <div class="credibility-row">
         <span class="credibility-label">政策信賴度評級</span>
         <div class="credibility-track"><div class="credibility-fill"></div></div>
@@ -206,25 +205,3 @@ function showResult() {
       <strong>${v.name}</strong> 的政見回覆
     </div>
   `).join('');
-}
-function restart() { current = 0; verdicts = []; document.getElementById('resultScreen').classList.remove('active'); document.getElementById('gameArea').style.display = ''; document.getElementById('progressRow').style.display = ''; loadCard(); }
-loadCard();
-</script>
-</body>
-</html>
-"""
-
-# 3. 在 Python 裡精準控管你的法官辣評文字
-ai_p1 = "本案（吉安高齡就醫專車）三方針營提交之官方修辭，經語意結構解構，皆未能明確交代預算編列科目，亦未承諾當選後三個月內具體落實之時程表。"
-ai_p2 = "在法律與財政紀律分析中，「滾動檢討」與「打造便利生活」屬於典型的程序性拖延修辭，因此在 AI 模型中其『政策信賴度評級』被判定為 18% 的低度承諾區間。本看板將維持警示燈號，引導在地鄉親持續施壓。"
-
-# 將 Python 變數塞進網頁模板中
-final_html = html_template.format(ai_report_1=ai_p1, ai_report_2=ai_p2)
-
-# 4. 網頁外殼大標題（配合 Claude 的文青配色）
-st.markdown("<h2 style='text-align: center; color: #2C2416; font-family: serif; font-weight: 700; margin-top:20px;'>🌾 2026 花蓮縣長選舉：政策照妖鏡</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #7A6E62; font-size: 0.9rem;'>由外地遊子與地方青年智庫獨立發起 ── 公民科技 X AI 降維打擊</p>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #A89E94; font-size: 0.85rem; margin-top: -10px;'>📍 本週焦點戰區：【吉安鄉 · 高齡就醫接駁車專案】</p>", unsafe_allow_html=True)
-
-# 5. 一鍵渲染完全體卡片遊戲（設定高度 520px，完美自適應手機螢幕不破版）
-components.html(final_html, height=530, scrolling=False)
